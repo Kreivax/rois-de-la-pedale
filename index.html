@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les Rois de la Pédale — Vote destination</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --noir: #0a0a0a;
+    --blanc: #f5f0e8;
+    --rouge: #d42b2b;
+    --or: #c9a84c;
+    --gris: #1e1e1e;
+    --gris-mid: #2e2e2e;
+    --gris-light: #4a4a4a;
+    --texte-muted: #888;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 80px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 80px),
+      var(--noir);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 200px;
+    background: linear-gradient(to bottom, transparent, var(--noir));
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--or);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s ease forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 10rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s ease forwards;
+  }
+
+  .hero-title span { color: var(--rouge); }
+
+  .hero-sub {
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    color: var(--texte-muted);
+    max-width: 500px;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s ease forwards;
+  }
+
+  .hero-sub strong { color: var(--blanc); font-weight: 400; }
+
+  .hero-cta {
+    display: inline-block;
+    background: var(--rouge);
+    color: var(--blanc);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.65s ease forwards;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .hero-cta:hover { background: #b82323; transform: translateY(-2px); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fadeUp 0.7s 1s ease forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .scroll-hint span { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--texte-muted); text-transform: uppercase; }
+  .scroll-arrow { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--texte-muted), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+
+  /* SECTION */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--or);
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--gris-mid); }
+
+  /* CARDS DESTINATIONS */
+  .dest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2px;
+    background: var(--gris-mid);
+    border: 2px solid var(--gris-mid);
+  }
+
+  .dest-card {
+    background: var(--gris);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .dest-card:hover { background: var(--gris-mid); }
+
+  .dest-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    line-height: 1;
+    color: rgba(255,255,255,0.04);
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    pointer-events: none;
+  }
+
+  .dest-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 1px solid;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  .type-classique { color: var(--or); border-color: var(--or); }
+  .type-strade { color: #8bc4a8; border-color: #8bc4a8; }
+  .type-cx { color: #a888e8; border-color: #a888e8; }
+  .type-mondial { color: var(--or); border-color: var(--or); background: rgba(201,168,76,0.08); }
+  .type-etape { color: #5b9bd5; border-color: #5b9bd5; }
+  .type-ardenne { color: #e8b44c; border-color: #e8b44c; }
+  .type-automne { color: #d47a5a; border-color: #d47a5a; }
+
+  .dest-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+
+  .dest-lieu {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--texte-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .dest-desc {
+    font-size: 0.875rem;
+    color: #aaa;
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .dest-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid var(--gris-mid);
+    padding-top: 1rem;
+    margin-top: auto;
+  }
+
+  .fact {
+    display: flex;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: #888;
+    align-items: flex-start;
+  }
+  .fact-icon { color: var(--or); flex-shrink: 0; font-size: 0.75rem; margin-top: 2px; }
+
+  /* VOTE SECTION */
+  .vote-section {
+    background: var(--gris);
+    border-top: 1px solid var(--gris-mid);
+    border-bottom: 1px solid var(--gris-mid);
+    padding: 5rem 2rem;
+    text-align: center;
+  }
+
+  .vote-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    margin-bottom: 0.5rem;
+  }
+  .vote-title span { color: var(--rouge); }
+
+  .vote-subtitle {
+    color: var(--texte-muted);
+    font-size: 0.9rem;
+    margin-bottom: 3rem;
+  }
+
+  .vote-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    max-width: 900px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .vote-btn {
+    background: transparent;
+    border: 1px solid var(--gris-light);
+    color: var(--blanc);
+    padding: 1.25rem 1rem;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vote-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--rouge);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.2s ease;
+    z-index: 0;
+  }
+
+  .vote-btn:hover::before, .vote-btn.selected::before { transform: scaleY(1); }
+  .vote-btn:hover, .vote-btn.selected { border-color: var(--rouge); }
+
+  .vote-btn > * { position: relative; z-index: 1; }
+
+  .vote-btn-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+  }
+  .vote-btn-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.5);
+  }
+  .vote-btn.selected .vote-btn-date { color: rgba(255,255,255,0.7); }
+
+  .vote-check {
+    font-size: 1.2rem;
+    display: none;
+  }
+  .vote-btn.selected .vote-check { display: block; }
+
+  .vote-submit {
+    background: var(--rouge);
+    color: var(--blanc);
+    border: none;
+    padding: 16px 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .vote-submit.visible { display: inline-block; }
+  .vote-submit:hover { background: #b82323; transform: translateY(-2px); }
+
+  .vote-note {
+    font-size: 0.75rem;
+    color: var(--texte-muted);
+    margin-top: 1.5rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* RESULTS */
+  .results-section {
+    display: none;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: left;
+  }
+  .results-section.show { display: block; }
+
+  .result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .result-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 2rem;
+  }
+
+  .result-row { display: flex; flex-direction: column; gap: 6px; }
+  .result-row-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .result-dest-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.05em; }
+  .result-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--or); }
+  .result-bar-bg { height: 4px; background: var(--gris-mid); }
+  .result-bar-fill { height: 4px; background: var(--rouge); transition: width 1s ease; }
+  .result-bar-fill.gold { background: var(--or); }
+
+  .result-msg {
+    font-size: 0.85rem;
+    color: var(--texte-muted);
+    text-align: center;
+    font-style: italic;
+  }
+
+  .share-section {
+    border-top: 1px solid var(--gris-mid);
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .share-url {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--or);
+    background: var(--gris-mid);
+    padding: 10px 16px;
+    border: 1px solid var(--gris-light);
+    display: inline-block;
+    margin-top: 8px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.15s;
+    word-break: break-all;
+  }
+  .share-url:hover { background: var(--gris-light); }
+
+  .share-label { font-size: 0.8rem; color: var(--texte-muted); margin-bottom: 4px; }
+  .copied-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #8bc4a8; display: none; margin-top: 6px; }
+  .copied-msg.show { display: block; }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--gris-mid);
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .footer-logo span { color: var(--rouge); }
+  footer p { font-size: 0.75rem; color: var(--texte-muted); font-family: 'DM Mono', monospace; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .dest-grid { grid-template-columns: 1fr; }
+    .vote-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Groupe WhatsApp · Les Rois de la Pédale</p>
+  <h1 class="hero-title">Notre<br>prochain<br><span>trip</span></h1>
+  <p class="hero-sub">Après le <strong>Tro Bro Léon</strong>, on remet ça sur les routes les plus mythiques du cyclisme mondial. Vous avez la parole.</p>
+  <a href="#destinations" class="hero-cta">Voir les destinations</a>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- DESTINATIONS -->
+<section id="destinations" class="section">
+  <div class="section-label">Les 9 destinations · Choisissez votre camp</div>
+
+  <div class="dest-grid">
+
+    <!-- STRADE BIANCHE -->
+    <div class="dest-card reveal">
+      <div class="dest-num">01</div>
+      <span class="dest-type type-strade">Gravel / Strade</span>
+      <h2 class="dest-name">Strade Bianche</h2>
+      <p class="dest-lieu">📍 Sienne, Toscane · Mars</p>
+      <p class="dest-desc">Des routes blanches de poussière, la Piazza del Campo comme finish, et la Toscane en plein printemps. La Gran Fondo du samedi emprunte les mêmes strade bianche que les pros le lendemain. Le cyclisme le plus romantique qui soit.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>Gran Fondo 135 km / 3 500 m D+ sur les routes blanches officielles</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Sienne le soir : vins toscans, osterie, Piazza del Campo pour l'arrivée</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>~15 000 participants, ambiance internationale chaleureuse</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Inscriptions dès octobre — sold out vite</span></div>
+      </div>
+    </div>
+
+    <!-- RONDE -->
+    <div class="dest-card reveal">
+      <div class="dest-num">02</div>
+      <span class="dest-type type-classique">Classique pavée</span>
+      <h2 class="dest-name">Ronde van Vlaanderen</h2>
+      <p class="dest-lieu">📍 Anvers → Oudenaarde · Avril</p>
+      <p class="dest-desc">La cyclo la mieux organisée au monde. Paterberg, Koppenberg, Oude Kwaremont — les murs les plus durs du cyclisme. 10 000 cyclos le samedi, les pros le dimanche. Et les Flamands savent faire la fête comme personne en Europe.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>Format 233 km ou 124 km (courts recommandé pour profiter du week-end)</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Gand = culture bière belge légendaire, terrasses après la cyclo</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Musée du cyclisme à Oudenaarde, à faire ensemble</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Inscriptions sold out en quelques heures — alerte en octobre</span></div>
+      </div>
+    </div>
+
+    <!-- PARIS-ROUBAIX -->
+    <div class="dest-card reveal">
+      <div class="dest-num">03</div>
+      <span class="dest-type type-classique">Classique pavée</span>
+      <h2 class="dest-name">Paris-Roubaix Challenge</h2>
+      <p class="dest-lieu">📍 Compiègne → Roubaix · Avril</p>
+      <p class="dest-desc">L'Enfer du Nord en version cyclo — le samedi, sur les mêmes 29 secteurs pavés que les pros le lendemain. Forêt d'Arenberg, Carrefour de l'Arbre, arrivée au vélodrome de Roubaix. Une claque émotionnelle garantie.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>170 km / 55 km de pavés officiels (ou format court ~100 km)</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>L'arrivée sur la piste du vélodrome : émotion unique dans le cyclisme</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Organisation ASO (Tour de France), logistique impeccable</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Pros le dimanche depuis le bord de route — week-end complet</span></div>
+      </div>
+    </div>
+
+    <!-- KOKSIJDE -->
+    <div class="dest-card reveal">
+      <div class="dest-num">04</div>
+      <span class="dest-type type-cx">Cyclocross</span>
+      <h2 class="dest-name">CX Koksijde</h2>
+      <p class="dest-lieu">📍 Koksijde, Flandre · Décembre/Janvier</p>
+      <p class="dest-desc">25 000 Flamands dans les dunes, bière à la main, qui hurlent le nom de leurs héros. Le cyclocross mondial ou une manche de Coupe du Monde dans les dunes de la côte belge, c'est une expérience de spectateur qui n'existe nulle part ailleurs en cyclisme.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>Ambiance de festival : sono, animations, buvettes tout autour du circuit</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Les dunes créent un spectacle visuel unique — on voit tout depuis les tribunes</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Bruges / Ostende à côté : city-trip parfait pour compléter le week-end</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Possible de faire une sortie route le matin avant la course</span></div>
+      </div>
+    </div>
+
+    <!-- NAMUR -->
+    <div class="dest-card reveal">
+      <div class="dest-num">05</div>
+      <span class="dest-type type-cx">Cyclocross</span>
+      <h2 class="dest-name">CX Namur Citadelle</h2>
+      <p class="dest-lieu">📍 Namur, Wallonie · Décembre</p>
+      <p class="dest-desc">Le circuit le plus technique de la Coupe du Monde, taillé dans les remparts médiévaux de la Citadelle de Namur. Une ambiance nocturne et féerique, une ville wallonne festive, et le spectacle d'un cyclocross d'élite dans un cadre historique unique.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>Circuit tracé sur les fortifications — dénivelé brutal, ambiance médiévale</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Épreuve souvent en nocturne ou fin d'après-midi — lumières sur les remparts</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Namur : belle ville wallonne, bonnes tables, bières belges évidemment</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Accessible depuis Brest en train (Paris + Thalys) ou voiture</span></div>
+      </div>
+    </div>
+
+    <!-- MONDIAUX UCI 2027 -->
+    <div class="dest-card reveal">
+      <div class="dest-num">06</div>
+      <span class="dest-type type-mondial">Classique · Grand événement</span>
+      <h2 class="dest-name">Mondiaux UCI 2027</h2>
+      <p class="dest-lieu">📍 France · Septembre 2027</p>
+      <p class="dest-desc">L'objectif fédérateur du groupe. Les Mondiaux UCI sur sol français pour la première fois depuis des décennies. Une Gran Fondo officielle UCI adossée à l'événement, les meilleurs du monde en course le lendemain. Le plus grand rendez-vous cycliste de 2027.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>Gran Fondo UCI officielle — inscriptions à surveiller dès annonce parcours</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Septembre 2027 — ville hôte et tracé pas encore officiels (mai 2026)</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>En France = logistique zéro friction, départ depuis Brest en train</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>À planifier maintenant — les inscriptions partiront en quelques heures</span></div>
+      </div>
+    </div>
+
+    <!-- L'ÉTAPE DU TOUR -->
+    <div class="dest-card reveal">
+      <div class="dest-num">07</div>
+      <span class="dest-type type-etape">Défi Alpin</span>
+      <h2 class="dest-name">L'Étape du Tour</h2>
+      <p class="dest-lieu">📍 Alpes ou Pyrénées · Juillet</p>
+      <p class="dest-desc">Rider exactement la même étape de montagne que les pros — le lendemain. Cols hors catégorie, 150 km de souffrance organisée, arrivée dans un village qui explose. Le seul événement où tu peines sur les mêmes pentes que les meilleurs du monde et tu les regardes passer le jour d'après depuis le bord de route.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>15 000 cyclos sur l'étape du jour : Galibier, Tourmalet, Alpe d'Huez selon l'année</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Village étape en fête : concert, terrasses, ambiance Tour de France totale le soir</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Les pros le lendemain — tu connais chaque virage, chaque mur</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Inscriptions par loterie ASO dès janvier — faut se positionner tôt</span></div>
+      </div>
+    </div>
+
+    <!-- LIÈGE-BASTOGNE-LIÈGE -->
+    <div class="dest-card reveal">
+      <div class="dest-num">08</div>
+      <span class="dest-type type-ardenne">Classique Ardennaise</span>
+      <h2 class="dest-name">Liège-Bastogne-Liège</h2>
+      <p class="dest-lieu">📍 Liège → Bastogne → Liège · Avril</p>
+      <p class="dest-desc">La Doyenne. La plus ancienne des classiques. La Liégeoise cyclo le samedi — 160 km et 4 000 m D+ sur les côtes des Ardennes que les pros attaquent le lendemain. La Redoute, Saint-Nicolas, Côte d'Ans. Et Liège qui fête ça comme une grande ville qui sait boire.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>La Liégeoise : 160 km / 4 000 m D+ sur les côtes officielles (format 130 km aussi)</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Côte d'Ans pour l'arrivée des pros le dimanche — ambiance électrique garantie</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Liège le soir : grande ville universitaire, bonnes tables, bières trappistes</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Ardennes en avril : forêts, côtes boueuses — la classique dans sa version la plus brute</span></div>
+      </div>
+    </div>
+
+    <!-- IL LOMBARDIA -->
+    <div class="dest-card reveal">
+      <div class="dest-num">09</div>
+      <span class="dest-type type-automne">Classique d'Automne</span>
+      <h2 class="dest-name">Il Lombardia</h2>
+      <p class="dest-lieu">📍 Côme → Bergame · Octobre</p>
+      <p class="dest-desc">La Classicissima di Autunno. Lac de Côme en fond de décor, feuilles qui tombent sur les routes du Madonna del Ghisallo et du Civiglio. Gran Fondo officielle sur le parcours des pros. Visuellement la plus belle des classiques — et l'Italie du Nord pour célébrer ça dignement.</p>
+      <div class="dest-facts">
+        <div class="fact"><span class="fact-icon">⬣</span><span>Gran Fondo Il Lombardia : ~140 km sur le tracé officiel avec les cols des pros</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Chapelle des cyclistes au sommet du Ghisallo — passage obligé, frisson assuré</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Côme + Bergame en octobre : terrasses, vins lombards, prix hôtels raisonnables</span></div>
+        <div class="fact"><span class="fact-icon">⬣</span><span>Saison décalée = moins de monde, météo encore douce, agenda sans conflit</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- VOTE -->
+<section id="vote" class="vote-section">
+  <div class="section-label" style="max-width:900px; margin:0 auto 2rem;">Le vote</div>
+  <h2 class="vote-title">C'est quoi <span>ton choix</span> ?</h2>
+  <p class="vote-subtitle">Sélectionne jusqu'à 2 destinations — on planifie sur la base des votes</p>
+
+  <div class="vote-grid" id="voteGrid">
+    <button class="vote-btn" data-dest="Strade Bianche" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">Strade<br>Bianche</span>
+      <span class="vote-btn-date">Mars · Toscane</span>
+    </button>
+    <button class="vote-btn" data-dest="Ronde van Vlaanderen" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">Ronde van<br>Vlaanderen</span>
+      <span class="vote-btn-date">Avril · Flandre</span>
+    </button>
+    <button class="vote-btn" data-dest="Paris-Roubaix" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">Paris-<br>Roubaix</span>
+      <span class="vote-btn-date">Avril · Nord</span>
+    </button>
+    <button class="vote-btn" data-dest="CX Koksijde" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">CX<br>Koksijde</span>
+      <span class="vote-btn-date">Déc/Jan · Belgique</span>
+    </button>
+    <button class="vote-btn" data-dest="CX Namur" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">CX<br>Namur</span>
+      <span class="vote-btn-date">Décembre · Wallonie</span>
+    </button>
+    <button class="vote-btn" data-dest="Mondiaux 2027" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">Mondiaux<br>UCI 2027</span>
+      <span class="vote-btn-date">Sept 2027 · France</span>
+    </button>
+    <button class="vote-btn" data-dest="Etape du Tour" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">L'Étape<br>du Tour</span>
+      <span class="vote-btn-date">Juillet · Alpes</span>
+    </button>
+    <button class="vote-btn" data-dest="Liege-Bastogne-Liege" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">Liège-<br>Bastogne</span>
+      <span class="vote-btn-date">Avril · Ardennes</span>
+    </button>
+    <button class="vote-btn" data-dest="Il Lombardia" onclick="toggleVote(this)">
+      <span class="vote-check">✓</span>
+      <span class="vote-btn-name">Il<br>Lombardia</span>
+      <span class="vote-btn-date">Octobre · Côme</span>
+    </button>
+  </div>
+
+  <button class="vote-submit" id="submitBtn" onclick="submitVote()">Valider mon vote →</button>
+  <p class="vote-note" id="vote-note-text">Votes anonymes · partagés avec le groupe en temps réel</p>
+
+  <!-- RESULTS -->
+  <div class="results-section" id="results">
+    <h3 class="result-title">Résultats en direct</h3>
+    <div class="result-bar-wrap" id="resultBars"></div>
+    <p class="result-msg" id="resultMsg"></p>
+    <div class="share-section">
+      <p class="share-label">Partage ce lien aux copains</p>
+      <div class="share-url" id="shareUrl" onclick="copyUrl()">rois-de-la-pedale.github.io</div>
+      <p class="copied-msg" id="copiedMsg">Lien copié ! ✓</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Les Rois de la <span>Pédale</span></div>
+  <p>Après le Tro Bro Léon 2025 · On remet ça 🚴</p>
+</footer>
+
+<script>
+  // ── CONFIG ── Colle ici l'URL de ton Apps Script déployé (voir apps-script.gs)
+  // Laisse vide pour fonctionner en mode local (localStorage uniquement)
+  const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzkj8n7IeTWxyCqD0ehaDqdC1BabeMD7NgEp-YPY5kxWjj91YmVbfMKLNsSen5mB_xVDQ/exec';
+  // ────────────────────────────────────────────────────────────────────────────
+
+  const STORAGE_KEY  = 'rois_pedale_votes_v2';
+  const HAS_VOTED_KEY = 'rois_pedale_has_voted';
+  const VOTER_ID_KEY  = 'rois_pedale_voter_id';
+  const MAX_VOTES = 2;
+  let selected = [];
+  let hasVoted = false;
+
+  const ALL_DESTS = [
+    { key: 'Strade_Bianche',         label: 'Strade Bianche' },
+    { key: 'Ronde_van_Vlaanderen',   label: 'Ronde van Vlaanderen' },
+    { key: 'Paris_Roubaix',          label: 'Paris-Roubaix' },
+    { key: 'CX_Koksijde',            label: 'CX Koksijde' },
+    { key: 'CX_Namur',               label: 'CX Namur' },
+    { key: 'Mondiaux_2027',          label: 'Mondiaux UCI 2027' },
+    { key: 'Etape_du_Tour',          label: "L'Étape du Tour" },
+    { key: 'Liege_Bastogne_Liege',   label: 'Liège-Bastogne-Liège' },
+    { key: 'Il_Lombardia',           label: 'Il Lombardia' },
+  ];
+
+  function emptyVotes() {
+    return Object.fromEntries(ALL_DESTS.map(d => [d.key, 0]));
+  }
+
+  function getVoterId() {
+    let id = localStorage.getItem(VOTER_ID_KEY);
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now());
+      localStorage.setItem(VOTER_ID_KEY, id);
+    }
+    return id;
+  }
+
+  function destKey(name) {
+    return name.replace(/[^a-zA-Z0-9]/g, '_').replace(/__+/g, '_');
+  }
+
+  function loadLocalVotes() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? { ...emptyVotes(), ...JSON.parse(raw) } : emptyVotes();
+    } catch { return emptyVotes(); }
+  }
+
+  function saveLocalVotes(data) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+  }
+
+  async function fetchBackendResults() {
+    const res = await fetch(BACKEND_URL + '?action=results', { redirect: 'follow' });
+    const data = await res.json();
+    return data;
+  }
+
+  function updateVoteNote(totalVoters) {
+    const note = document.getElementById('vote-note-text');
+    if (note) note.textContent = `${totalVoters} participant${totalVoters > 1 ? 's' : ''} ont voté · Résultats en temps réel`;
+  }
+
+  function toggleVote(btn) {
+    if (hasVoted) return;
+    const dest = btn.dataset.dest;
+    const idx = selected.indexOf(dest);
+    if (idx > -1) {
+      selected.splice(idx, 1);
+      btn.classList.remove('selected');
+    } else {
+      if (selected.length >= MAX_VOTES) {
+        const firstDest = selected[0];
+        selected.splice(0, 1);
+        document.querySelectorAll('.vote-btn').forEach(b => {
+          if (b.dataset.dest === firstDest) b.classList.remove('selected');
+        });
+      }
+      selected.push(dest);
+      btn.classList.add('selected');
+    }
+    document.getElementById('submitBtn').classList.toggle('visible', selected.length > 0);
+  }
+
+  async function submitVote() {
+    if (selected.length === 0 || hasVoted) return;
+    hasVoted = true;
+    localStorage.setItem(HAS_VOTED_KEY, '1');
+
+    const voterId = getVoterId();
+
+    // Sauvegarde locale
+    const localVotes = loadLocalVotes();
+    selected.forEach(dest => {
+      const key = destKey(dest);
+      localVotes[key] = (localVotes[key] || 0) + 1;
+    });
+    saveLocalVotes(localVotes);
+
+    let displayVotes = localVotes;
+
+    if (BACKEND_URL) {
+      try {
+        await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ voterId, choices: selected }),
+          redirect: 'follow'
+        });
+        const data = await fetchBackendResults();
+        displayVotes = { ...emptyVotes(), ...data.counts };
+        updateVoteNote(data.totalVoters);
+      } catch {}
+    }
+
+    showResults(displayVotes);
+  }
+
+  function showResults(votes) {
+    const total = Object.values(votes).reduce((a, b) => a + b, 0) || 1;
+    const sorted = [...ALL_DESTS].sort((a, b) => (votes[b.key] || 0) - (votes[a.key] || 0));
+    const barsEl = document.getElementById('resultBars');
+    barsEl.innerHTML = '';
+
+    sorted.forEach((d, i) => {
+      const count = votes[d.key] || 0;
+      const pct = Math.round((count / total) * 100);
+      const isLeader = i === 0 && count > 0;
+      barsEl.innerHTML += `
+        <div class="result-row">
+          <div class="result-row-top">
+            <span class="result-dest-name">${d.label}</span>
+            <span class="result-pct">${pct}% · ${count} vote${count !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="result-bar-bg">
+            <div class="result-bar-fill ${isLeader ? 'gold' : ''}" style="width:0%" data-pct="${pct}"></div>
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('results').classList.add('show');
+    document.getElementById('submitBtn').style.display = 'none';
+
+    setTimeout(() => {
+      document.querySelectorAll('.result-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.pct + '%';
+      });
+    }, 100);
+
+    const winner = sorted[0];
+    if ((votes[winner.key] || 0) > 0) {
+      document.getElementById('resultMsg').textContent =
+        `En tête : ${winner.label} 🏆 · Partage le lien pour que les copains votent !`;
+    }
+
+    document.getElementById('shareUrl').textContent = window.location.href;
+  }
+
+  function copyUrl() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const msg = document.getElementById('copiedMsg');
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 2500);
+    }).catch(() => {});
+  }
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => obs.observe(el));
+
+  // Init
+  async function init() {
+    if (!localStorage.getItem(HAS_VOTED_KEY)) return;
+    hasVoted = true;
+    document.getElementById('submitBtn').style.display = 'none';
+    let displayVotes = loadLocalVotes();
+    if (BACKEND_URL) {
+      try {
+        const data = await fetchBackendResults();
+        displayVotes = { ...emptyVotes(), ...data.counts };
+        updateVoteNote(data.totalVoters);
+      } catch {}
+    }
+    setTimeout(() => showResults(displayVotes), 400);
+  }
+
+  init();
+</script>
+</body>
+</html>
