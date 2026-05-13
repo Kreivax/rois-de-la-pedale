@@ -338,43 +338,51 @@
     font-family: 'DM Mono', monospace;
   }
 
-  /* RESULTS */
+  /* CONFIRMATION */
   .results-section {
     display: none;
-    max-width: 700px;
+    max-width: 500px;
     margin: 0 auto;
     padding: 2rem;
-    text-align: left;
+    text-align: center;
   }
   .results-section.show { display: block; }
+
+  .confirm-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 2.5rem;
+    color: #8bc4a8;
+    margin-bottom: 0.75rem;
+  }
 
   .result-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
+    margin-bottom: 0.5rem;
   }
 
-  .result-bar-wrap {
+  .confirm-choices {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 2rem;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1.25rem 0 1.5rem;
   }
 
-  .result-row { display: flex; flex-direction: column; gap: 6px; }
-  .result-row-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .result-dest-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.05em; }
-  .result-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--or); }
-  .result-bar-bg { height: 4px; background: var(--gris-mid); }
-  .result-bar-fill { height: 4px; background: var(--rouge); transition: width 1s ease; }
-  .result-bar-fill.gold { background: var(--or); }
+  .confirm-chip {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.05em;
+    background: var(--rouge);
+    color: var(--blanc);
+    padding: 8px 18px;
+  }
 
   .result-msg {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--texte-muted);
-    text-align: center;
-    font-style: italic;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 0.5rem;
   }
 
   .share-section {
@@ -656,16 +664,17 @@
   </div>
 
   <button class="vote-submit" id="submitBtn" onclick="submitVote()">Valider mon vote →</button>
-  <p class="vote-note" id="vote-note-text">Votes anonymes · partagés avec le groupe en temps réel</p>
+  <p class="vote-note">Vote anonyme · 1 vote par personne</p>
 
-  <!-- RESULTS -->
+  <!-- CONFIRMATION -->
   <div class="results-section" id="results">
-    <h3 class="result-title">Résultats en direct</h3>
-    <div class="result-bar-wrap" id="resultBars"></div>
-    <p class="result-msg" id="resultMsg"></p>
+    <div class="confirm-icon">✓</div>
+    <h3 class="result-title">Vote enregistré</h3>
+    <div class="confirm-choices" id="confirmChoices"></div>
+    <p class="result-msg">Résultats dévoilés une fois tout le groupe voté</p>
     <div class="share-section">
-      <p class="share-label">Partage ce lien aux copains</p>
-      <div class="share-url" id="shareUrl" onclick="copyUrl()">rois-de-la-pedale.github.io</div>
+      <p class="share-label">Envoie ce lien aux copains</p>
+      <div class="share-url" id="shareUrl" onclick="copyUrl()">kreivax.github.io/rois-de-la-pedale</div>
       <p class="copied-msg" id="copiedMsg">Lien copié ! ✓</p>
     </div>
   </div>
@@ -678,68 +687,16 @@
 </footer>
 
 <script>
-  // ── CONFIG ── Colle ici l'URL de ton Apps Script déployé (voir apps-script.gs)
-  // Laisse vide pour fonctionner en mode local (localStorage uniquement)
-  const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxrgmmJ92YJDtQnCeY37IRxUoJv439ReIHGqKM_JxtHc3TJ_6bV_0U6YmLfZUQMK1_gbw/exec';
+  // ── CONFIG ── À remplir avec les infos de ton Google Form (voir instructions ci-dessous)
+  const FORM_ACTION = 'FORM_ACTION_URL';  // ex: https://docs.google.com/forms/d/XXXX/formResponse
+  const FORM_ENTRY  = 'FORM_ENTRY_ID';   // ex: entry.123456789
   // ────────────────────────────────────────────────────────────────────────────
 
-  const STORAGE_KEY  = 'rois_pedale_votes_v2';
-  const HAS_VOTED_KEY = 'rois_pedale_has_voted';
-  const VOTER_ID_KEY  = 'rois_pedale_voter_id';
+  const HAS_VOTED_KEY = 'rois_pedale_has_voted_v2';
+  const SELECTION_KEY = 'rois_pedale_selection';
   const MAX_VOTES = 2;
   let selected = [];
   let hasVoted = false;
-
-  const ALL_DESTS = [
-    { key: 'Strade_Bianche',         label: 'Strade Bianche' },
-    { key: 'Ronde_van_Vlaanderen',   label: 'Ronde van Vlaanderen' },
-    { key: 'Paris_Roubaix',          label: 'Paris-Roubaix' },
-    { key: 'CX_Koksijde',            label: 'CX Koksijde' },
-    { key: 'CX_Namur',               label: 'CX Namur' },
-    { key: 'Mondiaux_2027',          label: 'Mondiaux UCI 2027' },
-    { key: 'Etape_du_Tour',          label: "L'Étape du Tour" },
-    { key: 'Liege_Bastogne_Liege',   label: 'Liège-Bastogne-Liège' },
-    { key: 'Il_Lombardia',           label: 'Il Lombardia' },
-  ];
-
-  function emptyVotes() {
-    return Object.fromEntries(ALL_DESTS.map(d => [d.key, 0]));
-  }
-
-  function getVoterId() {
-    let id = localStorage.getItem(VOTER_ID_KEY);
-    if (!id) {
-      id = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now());
-      localStorage.setItem(VOTER_ID_KEY, id);
-    }
-    return id;
-  }
-
-  function destKey(name) {
-    return name.replace(/[^a-zA-Z0-9]/g, '_').replace(/__+/g, '_');
-  }
-
-  function loadLocalVotes() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? { ...emptyVotes(), ...JSON.parse(raw) } : emptyVotes();
-    } catch { return emptyVotes(); }
-  }
-
-  function saveLocalVotes(data) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
-  }
-
-  async function fetchBackendResults() {
-    const res = await fetch(BACKEND_URL + '?action=results', { redirect: 'follow' });
-    const data = await res.json();
-    return data;
-  }
-
-  function updateVoteNote(totalVoters) {
-    const note = document.getElementById('vote-note-text');
-    if (note) note.textContent = `${totalVoters} participant${totalVoters > 1 ? 's' : ''} ont voté · Résultats en temps réel`;
-  }
 
   function toggleVote(btn) {
     if (hasVoted) return;
@@ -762,77 +719,31 @@
     document.getElementById('submitBtn').classList.toggle('visible', selected.length > 0);
   }
 
-  async function submitVote() {
+  function submitVote() {
     if (selected.length === 0 || hasVoted) return;
     hasVoted = true;
     localStorage.setItem(HAS_VOTED_KEY, '1');
+    localStorage.setItem(SELECTION_KEY, JSON.stringify(selected));
 
-    const voterId = getVoterId();
-
-    // Sauvegarde locale
-    const localVotes = loadLocalVotes();
-    selected.forEach(dest => {
-      const key = destKey(dest);
-      localVotes[key] = (localVotes[key] || 0) + 1;
-    });
-    saveLocalVotes(localVotes);
-
-    let displayVotes = localVotes;
-
-    if (BACKEND_URL) {
+    // Envoi à Google Forms — fire & forget, no-cors, toujours fiable
+    if (!FORM_ACTION.startsWith('FORM')) {
       try {
-        await fetch(BACKEND_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ voterId, choices: selected }),
-          redirect: 'follow'
-        });
-        const data = await fetchBackendResults();
-        displayVotes = { ...emptyVotes(), ...data.counts };
-        updateVoteNote(data.totalVoters);
+        const body = new FormData();
+        selected.forEach(dest => body.append(FORM_ENTRY, dest));
+        fetch(FORM_ACTION, { method: 'POST', mode: 'no-cors', body });
       } catch {}
     }
 
-    showResults(displayVotes);
+    showConfirmation(selected);
   }
 
-  function showResults(votes) {
-    const total = Object.values(votes).reduce((a, b) => a + b, 0) || 1;
-    const sorted = [...ALL_DESTS].sort((a, b) => (votes[b.key] || 0) - (votes[a.key] || 0));
-    const barsEl = document.getElementById('resultBars');
-    barsEl.innerHTML = '';
-
-    sorted.forEach((d, i) => {
-      const count = votes[d.key] || 0;
-      const pct = Math.round((count / total) * 100);
-      const isLeader = i === 0 && count > 0;
-      barsEl.innerHTML += `
-        <div class="result-row">
-          <div class="result-row-top">
-            <span class="result-dest-name">${d.label}</span>
-            <span class="result-pct">${pct}% · ${count} vote${count !== 1 ? 's' : ''}</span>
-          </div>
-          <div class="result-bar-bg">
-            <div class="result-bar-fill ${isLeader ? 'gold' : ''}" style="width:0%" data-pct="${pct}"></div>
-          </div>
-        </div>`;
-    });
-
+  function showConfirmation(choices) {
+    const chips = choices.length
+      ? choices.map(c => `<span class="confirm-chip">${c}</span>`).join('')
+      : '<span style="color:var(--texte-muted);font-size:0.85rem">—</span>';
+    document.getElementById('confirmChoices').innerHTML = chips;
     document.getElementById('results').classList.add('show');
     document.getElementById('submitBtn').style.display = 'none';
-
-    setTimeout(() => {
-      document.querySelectorAll('.result-bar-fill').forEach(bar => {
-        bar.style.width = bar.dataset.pct + '%';
-      });
-    }, 100);
-
-    const winner = sorted[0];
-    if ((votes[winner.key] || 0) > 0) {
-      document.getElementById('resultMsg').textContent =
-        `En tête : ${winner.label} 🏆 · Partage le lien pour que les copains votent !`;
-    }
-
     document.getElementById('shareUrl').textContent = window.location.href;
   }
 
@@ -856,20 +767,13 @@
   }, { threshold: 0.1 });
   reveals.forEach(el => obs.observe(el));
 
-  // Init
-  async function init() {
+  // Init — si déjà voté, afficher la confirmation
+  function init() {
     if (!localStorage.getItem(HAS_VOTED_KEY)) return;
     hasVoted = true;
     document.getElementById('submitBtn').style.display = 'none';
-    let displayVotes = loadLocalVotes();
-    if (BACKEND_URL) {
-      try {
-        const data = await fetchBackendResults();
-        displayVotes = { ...emptyVotes(), ...data.counts };
-        updateVoteNote(data.totalVoters);
-      } catch {}
-    }
-    setTimeout(() => showResults(displayVotes), 400);
+    const prev = localStorage.getItem(SELECTION_KEY);
+    setTimeout(() => showConfirmation(prev ? JSON.parse(prev) : []), 400);
   }
 
   init();
